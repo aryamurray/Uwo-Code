@@ -11,3 +11,7 @@ STRUCTURE
     4. In this loop, we define our triangle and colour that gets rendered when we run the program.
         4.5. We do this by defining the points and then calling glTriangles to draw between them.
     5. Finally, we just have a cleanup function and return from main
+
+ADDITIONAL NOTES
+    I believe that there's an issue with XLaunch, VCSVR and some of the opengl calls. I defined dotted line, and rounded point
+    for example and saw no evidence of it in my code. It should work for your testing enviroment though.
