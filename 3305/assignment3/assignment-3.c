@@ -9,6 +9,7 @@
 int puzzle[PUZZLE_SIZE][PUZZLE_SIZE];
 bool thread_results[NUM_THREADS];
 
+// Set definitions for Functions
 void *check_row(void *arg);
 void *check_column(void *arg);
 void *check_subgrid(void *arg);
@@ -16,6 +17,8 @@ bool read_puzzle(char *filename);
 
 int main(int argc, char *argv[])
 {
+
+    // Basic input handling for input file
     if (argc != 2)
     {
         printf("Usage: assignment-3 <filename>\n");
@@ -91,6 +94,7 @@ void *check_row(void *arg)
     int row_index = (int)arg;
     bool seen[10] = {false};
 
+    // Iterate through the puzzle
     for (int col = 0; col < PUZZLE_SIZE; col++)
     {
         int digit = puzzle[row_index][col];
@@ -111,6 +115,7 @@ void *check_column(void *arg)
     int col_index = (int)arg;
     bool seen[10] = {false};
 
+    // Iterate through the puzzle
     for (int row = 0; row < PUZZLE_SIZE; row++)
     {
         int digit = puzzle[row][col_index];
@@ -155,9 +160,9 @@ void *check_subgrid(void *arg)
 bool read_puzzle(char *filename)
 {
     FILE *fp = fopen(filename, "r");
-    if (fp == NULL)
+    if (fp == NULL) // If error
     {
-        return false; // File opening error
+        return false;
     }
 
     for (int i = 0; i < PUZZLE_SIZE; i++)
