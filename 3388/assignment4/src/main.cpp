@@ -1,67 +1,85 @@
-#include "main.h"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <stdio.h>
+#include "LoadBitmap.hpp"
+#include "types.hpp"
 
-
-// ... other necessary libraries
+// ... other necessary includes
 
 // Camera variables
-glm::vec3 cameraPosition = glm::vec3(0.5f, 0.4f, 0.5f);  // Initial position
-glm::vec3 cameraLookAt = glm::vec3(0.0f, 0.0f, -1.0f);    // Initial direction
-float cameraSpeed = 0.05f;  // Movement speed per frame
-float cameraRotation = 3.0f; // Rotation amount per frame (in degrees)
+glm::vec3 cameraPosition = glm::vec3(0.5f, 0.4f, 0.5f);
+glm::vec3 cameraLookDirection = glm::vec3(0.0f, 0.0f, -1.0f); // Normalized
+float cameraSpeed = 0.05f;
+float cameraRotation = 3.0f; 
 
+// Function to handle camera movement based on key input
 void handleCameraMovement(GLFWwindow* window) {
-  // Check for key presses
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-    cameraPosition += cameraSpeed * cameraLookAt;
-  }
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-    cameraPosition -= cameraSpeed * cameraLookAt;
-  }
-  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-    // Convert degrees to radians for glm::rotate
-    float radians = glm::radians(cameraRotation);
-    glm::vec3 rotationAxis = glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraLookAt);  // Rotate around Y-axis
-    cameraLookAt = glm::rotate(cameraLookAt, radians, rotationAxis);
-  }
-  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-    // Similar logic for right key press with negative rotation
-  }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        cameraPosition += cameraSpeed * cameraLookDirection;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        cameraPosition -= cameraSpeed * cameraLookDirection;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        float radians = glm::radians(cameraRotation);
+        cameraLookDirection = glm::rotate(cameraLookDirection, radians, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        float radians = glm::radians(-cameraRotation); // Note: negative rotation
+        cameraLookDirection = glm::rotate(cameraLookDirection, radians, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
 }
 
+// Function to calculate and update the view matrix
 void updateViewMatrix() {
-  // Calculate new view direction based on camera position and lookAt
-  glm::vec3 viewDirection = cameraLookAt - cameraPosition;
-  // Use glm::normalize to ensure proper direction vector
-  viewDirection = glm::normalize(viewDirection);
+    glm::vec3 right = glm::normalize(glm::cross(cameraLookDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
+    glm::vec3 up = glm::normalize(glm::cross(right, cameraLookDirection));
+    glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraLookDirection, up);
 
-  // Right vector (perpendicular to view direction and up vector)
-  glm::vec3 right = glm::normalize(glm::cross(viewDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
-
-  // Up vector (perpendicular to right and view direction)
-  glm::vec3 up = glm::normalize(glm::cross(right, viewDirection));
-
-  // Construct view matrix
-  glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + viewDirection, up);
-
-  // ... use the view matrix for rendering
+    // Get the uniform location of your view matrix in your shader
+    // and set its value
+    int viewMatrixLocation = glGetUniformLocation(yourShaderProgram, "view");
+    glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(view));
 }
 
-int main() {
-  // ... other initialization code
+int main(void) {
 
-  while (!glfwWindowShouldClose(window)) {
-    // ... other rendering code
+    GLFWwindow *window;
 
-    handleCameraMovement(window);
-    updateViewMatrix();
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
 
-    // ... continue rendering using updated view matrix
+    glfwWindowHint(GLFW_SAMPLES, 4); // Set the 4x Sampling
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 640, "Link's House", NULL, NULL);
+    if (!window)
+    {
+        printf("[Error] Failed to create window");
+        glfwTerminate();
+        return -1;
+    }
 
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
+    /* Make the window's context current and define view*/
+    glfwMakeContextCurrent(window);
 
-  // ... other cleanup code
 
-  return 0;
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /* Poll for and process events */
+        glfwPollEvents();
+
+        /* Render here */
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+    }
+
+    glfwTerminate();
+    return 0;
 }
