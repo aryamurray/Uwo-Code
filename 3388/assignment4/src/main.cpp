@@ -1,9 +1,8 @@
-#include <GLFW/glfw3.h>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <GLES3/gl3.h>
 #include <stdio.h>
 #include <vector>
 #include <string>
@@ -12,7 +11,7 @@
 #include <iostream>
 #include "LoadBitmap.hpp"
 
-//Definitions
+// Definitions
 void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vector<TriData> &faces);
 
 // Camera variables
@@ -21,19 +20,19 @@ glm::vec3 cameraLookDirection = glm::vec3(0.0f, 0.0f, -1.0f); // Normalized
 float cameraSpeed = 0.05f;
 float cameraRotation = 3.0f;
 
-struct VertexData
+typedef struct VertexData
 {
     float x, y, z;
     float nx = 0.0f, ny = 0.0f, nz = 0.0f; // Optional normal vector (default to 0)
     float r = 0.0f, g = 0.0f, b = 0.0f;    // Optional color (default to black)
     float u = 0.0f, v = 0.0f;              // Optional texture coordinates (default to 0)
-};
+} VertexData;
 
 // Struct to store face data (triangle indices)
-struct TriData
+typedef struct TriData
 {
     int indices[3]; // Array to store indices of 3 vertices
-};
+} TriData;
 
 class TexturedMesh
 {
@@ -222,13 +221,9 @@ int main(void)
     GLFWwindow *window;
     std::vector<TexturedMesh> meshes;
 
-
-
     /* Initialize the library */
     if (!glfwInit())
         return -1;
-
-    
 
     glfwWindowHint(GLFW_SAMPLES, 4); // Set the 4x Sampling
     /* Create a windowed mode window and its OpenGL context */
@@ -247,9 +242,10 @@ int main(void)
     /* Make the window's context current and define view*/
     glfwMakeContextCurrent(window);
 
-    //Init GLEW
-    glewExperimental = GL_TRUE; 
-    if (glewInit() != GLEW_OK) {
+    // Init GLEW
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK)
+    {
         std::cerr << "Error initializing GLEW\n";
         return -1;
     }
