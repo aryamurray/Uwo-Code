@@ -11,20 +11,25 @@ BIN_DIR = bin
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 
 # --- Create object file names ---
-OBJS := $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # --- Name of your final executable ---
 TARGET = assignment4
 
 # --- Libraries ---
-LIBS = -lglfw -ldl -lm -lGL 
+LIBS = -lglfw -ldl -lm -lGL -lGLEW
 
 # --- All target: the default when you run 'make' ---
 all: $(BIN_DIR)/$(TARGET)
 
 # --- Create output directories if they don't exist ---
-$(OBJ_DIR) $(BIN_DIR):
-	mkdir -p $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDRS)
+	mkdir -p $(dir $@) # Create parent directory of the object file
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BIN_DIR)/$(TARGET): $(OBJS)
+	mkdir -p $(dir $@)  # Create parent directory of the executable
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 # --- Discover header files ---
 HDRS := $(wildcard $(SRC_DIR)/*.hpp)

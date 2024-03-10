@@ -11,15 +11,6 @@
 #include <iostream>
 #include "LoadBitmap.hpp"
 
-// Definitions
-void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vector<TriData> &faces);
-
-// Camera variables
-glm::vec3 cameraPosition = glm::vec3(0.5f, 0.4f, 0.5f);
-glm::vec3 cameraLookDirection = glm::vec3(0.0f, 0.0f, -1.0f); // Normalized
-float cameraSpeed = 0.05f;
-float cameraRotation = 3.0f;
-
 typedef struct VertexData
 {
     float x, y, z;
@@ -33,6 +24,15 @@ typedef struct TriData
 {
     int indices[3]; // Array to store indices of 3 vertices
 } TriData;
+
+// Definitions
+void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vector<TriData> &faces);
+
+// Camera variables
+glm::vec3 cameraPosition = glm::vec3(0.5f, 0.4f, 0.5f);
+glm::vec3 cameraLookDirection = glm::vec3(0.0f, 0.0f, -1.0f); // Normalized
+float cameraSpeed = 0.05f;
+float cameraRotation = 3.0f;
 
 class TexturedMesh
 {
