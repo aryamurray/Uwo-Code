@@ -1,9 +1,19 @@
 #include <GLFW/glfw3.h>
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <GLES3/gl3.h>
 #include <stdio.h>
 #include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 #include "LoadBitmap.hpp"
+
+//Definitions
+void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vector<TriData> &faces);
 
 // Camera variables
 glm::vec3 cameraPosition = glm::vec3(0.5f, 0.4f, 0.5f);
@@ -212,13 +222,13 @@ int main(void)
     GLFWwindow *window;
     std::vector<TexturedMesh> meshes;
 
-    // Init the Meshes
-    pushTexturedMeshes(meshes);
-    printf("[Init] Finished Reading Textures");
+
 
     /* Initialize the library */
     if (!glfwInit())
         return -1;
+
+    
 
     glfwWindowHint(GLFW_SAMPLES, 4); // Set the 4x Sampling
     /* Create a windowed mode window and its OpenGL context */
@@ -230,8 +240,19 @@ int main(void)
         return -1;
     }
 
+    // Init the Meshes
+    pushTexturedMeshes(meshes);
+    printf("[Init] Finished Reading Textures");
+
     /* Make the window's context current and define view*/
     glfwMakeContextCurrent(window);
+
+    //Init GLEW
+    glewExperimental = GL_TRUE; 
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Error initializing GLEW\n";
+        return -1;
+    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
