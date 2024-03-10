@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "LoadBitmap.h"
+#include "LoadBitmap.hpp"
 
 /**
  * Given a file path imagepath, read the data in that bitmapped image

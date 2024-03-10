@@ -1,3 +1,5 @@
+#pragma once
+
 struct VertexData {
   float x, y, z;
   float nx = 0.0f, ny = 0.0f, nz = 0.0f; // Optional normal vector (default to 0)

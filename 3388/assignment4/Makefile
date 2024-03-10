@@ -8,13 +8,13 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # --- Discover C source files ---
-SRCS := $(wildcard $(SRC_DIR)/*.c)
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 
 # --- Create object file names ---
 OBJS := $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 # --- Name of your final executable ---
-TARGET = myprogram
+TARGET = assignment4
 
 # --- Libraries ---
 LIBS = -lglfw -ldl -lm -lGL 
@@ -26,8 +26,11 @@ all: $(BIN_DIR)/$(TARGET)
 $(OBJ_DIR) $(BIN_DIR):
 	mkdir -p $@
 
+# --- Discover header files ---
+HDRS := $(wildcard $(SRC_DIR)/*.hpp)
+
 # --- Rule to compile an object file from a C source file---
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDRS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # --- Rule to link the final executable ---
