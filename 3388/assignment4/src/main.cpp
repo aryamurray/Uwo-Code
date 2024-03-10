@@ -71,6 +71,8 @@ public:
         glGenBuffers(1, &texCoordBufferId);
         glGenBuffers(1, &indexBufferId);
         glGenTextures(1, &textureId);
+        glBindTexture(GL_TEXTURE_2D, textureId); // Bind the texture obj to GL_TEXTURE_2D
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
 
         // Create the shaders
         GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -113,6 +115,13 @@ public:
     glAttachShader(shaderProgramId, VertexShaderID);
     glAttachShader(shaderProgramId, FragmentShaderID);
     glLinkProgram(shaderProgramId);
+
+    glDetachShader(shaderProgramId, VertexShaderID);
+    glDetachShader(shaderProgramId, FragmentShaderID);
+
+    glDeleteShader(VertexShaderID);
+    glDeleteShader(FragmentShaderID);
+
     }
 
     void draw(glm::mat4 MVP) const
@@ -127,6 +136,7 @@ public:
 
         // 3. Bind Texture
         glActiveTexture(GL_TEXTURE0); // Activate texture unit 0
+        glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, textureId);
 
         // 4. Bind VAO
