@@ -336,208 +336,208 @@ public:
 // Main
 //////////////////////////////////////////////////////////////////////////////
 
-// int main( int argc, char* argv[])
-// {
+int main( int argc, char* argv[])
+{
 
-// 	///////////////////////////////////////////////////////
-// 	int currentStep = 1;
-// 	int substep = 1;
-// 	if (argc > 1 ) {
-// 		currentStep = atoi(argv[1]);
-// 	}
-// 	if (argc > 2) {
-// 		substep = atoi(argv[2]);
-// 	}
-// 	///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	int currentStep = 1;
+	int substep = 1;
+	if (argc > 1 ) {
+		currentStep = atoi(argv[1]);
+	}
+	if (argc > 2) {
+		substep = atoi(argv[2]);
+	}
+	///////////////////////////////////////////////////////
 
-// 	// Initialise GLFW
-// 	if( !glfwInit() )
-// 	{
-// 		fprintf( stderr, "Failed to initialize GLFW\n" );
-// 		getchar();
-// 		return -1;
-// 	}
+	// Initialise GLFW
+	if( !glfwInit() )
+	{
+		fprintf( stderr, "Failed to initialize GLFW\n" );
+		getchar();
+		return -1;
+	}
 
-// 	glfwWindowHint(GLFW_SAMPLES, 4);
-// 	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-// 	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-// 	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-// 	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-// 	// Open a window and create its OpenGL context
-// 	float screenW = 1400;
-// 	float screenH = 900;
-// 	window = glfwCreateWindow( screenW, screenH, "An Example", NULL, NULL);
-// 	if( window == NULL ){
-// 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-// 		getchar();
-// 		glfwTerminate();
-// 		return -1;
-// 	}
-// 	glfwMakeContextCurrent(window);
+	// Open a window and create its OpenGL context
+	float screenW = 1400;
+	float screenH = 900;
+	window = glfwCreateWindow( screenW, screenH, "An Example", NULL, NULL);
+	if( window == NULL ){
+		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+		getchar();
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
 
-// 	// Initialize GLEW
-// 	glewExperimental = true; // Needed for core profile
-// 	if (glewInit() != GLEW_OK) {
-// 		fprintf(stderr, "Failed to initialize GLEW\n");
-// 		getchar();
-// 		glfwTerminate();
-// 		return -1;
-// 	}
+	// Initialize GLEW
+	glewExperimental = true; // Needed for core profile
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		getchar();
+		glfwTerminate();
+		return -1;
+	}
 
-// 	// Ensure we can capture the escape key being pressed below
-// 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	// Ensure we can capture the escape key being pressed below
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-// 	// Dark blue background
-// 	glClearColor(0.2f, 0.2f, 0.3f, 0.0f);
+	// Dark blue background
+	glClearColor(0.2f, 0.2f, 0.3f, 0.0f);
 
-// 	glEnable(GL_DEPTH_TEST);
-// 	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
-//     // Create the shaders
-//     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-//     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-//     std::string VertexShaderCode = "\
-//     	#version 330 core\n\
-// 		// Input vertex data, different for all executions of this shader.\n\
-// 		layout(location = 0) in vec3 vertexPosition;\n\
-// 		layout(location = 1) in vec2 uv;\n\
-// 		// Output data ; will be interpolated for each fragment.\n\
-// 		out vec2 uv_out;\n\
-// 		// Values that stay constant for the whole mesh.\n\
-// 		uniform mat4 MVP;\n\
-// 		void main(){ \n\
-// 			// Output position of the vertex, in clip space : MVP * position\n\
-// 			gl_Position =  MVP * vec4(vertexPosition,1);\n\
-// 			// The color will be interpolated to produce the color of each fragment\n\
-// 			uv_out = uv;\n\
-// 		}\n";
+    // Create the shaders
+    GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+    std::string VertexShaderCode = "\
+    	#version 330 core\n\
+		// Input vertex data, different for all executions of this shader.\n\
+		layout(location = 0) in vec3 vertexPosition;\n\
+		layout(location = 1) in vec2 uv;\n\
+		// Output data ; will be interpolated for each fragment.\n\
+		out vec2 uv_out;\n\
+		// Values that stay constant for the whole mesh.\n\
+		uniform mat4 MVP;\n\
+		void main(){ \n\
+			// Output position of the vertex, in clip space : MVP * position\n\
+			gl_Position =  MVP * vec4(vertexPosition,1);\n\
+			// The color will be interpolated to produce the color of each fragment\n\
+			uv_out = uv;\n\
+		}\n";
 
-//     // Read the Fragment Shader code from the file
-//     std::string FragmentShaderCode = "\
-// 		#version 330 core\n\
-// 		in vec2 uv_out; \n\
-// 		uniform sampler2D tex;\n\
-// 		void main() {\n\
-// 			gl_FragColor = texture(tex, uv_out);\n\
-// 		}\n";
-//     char const * VertexSourcePointer = VertexShaderCode.c_str();
-//     glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-//     glCompileShader(VertexShaderID);
+    // Read the Fragment Shader code from the file
+    std::string FragmentShaderCode = "\
+		#version 330 core\n\
+		in vec2 uv_out; \n\
+		uniform sampler2D tex;\n\
+		void main() {\n\
+			gl_FragColor = texture(tex, uv_out);\n\
+		}\n";
+    char const * VertexSourcePointer = VertexShaderCode.c_str();
+    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
+    glCompileShader(VertexShaderID);
 
-//     // Compile Fragment Shader
-//     char const * FragmentSourcePointer = FragmentShaderCode.c_str();
-//     glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-//     glCompileShader(FragmentShaderID);
+    // Compile Fragment Shader
+    char const * FragmentSourcePointer = FragmentShaderCode.c_str();
+    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
+    glCompileShader(FragmentShaderID);
 
-//     GLuint ProgramID = glCreateProgram();
-//     glAttachShader(ProgramID, VertexShaderID);
-//     glAttachShader(ProgramID, FragmentShaderID);
-//     glLinkProgram(ProgramID);
+    GLuint ProgramID = glCreateProgram();
+    glAttachShader(ProgramID, VertexShaderID);
+    glAttachShader(ProgramID, FragmentShaderID);
+    glLinkProgram(ProgramID);
 
-//     glDetachShader(ProgramID, VertexShaderID);
-//     glDetachShader(ProgramID, FragmentShaderID);
+    glDetachShader(ProgramID, VertexShaderID);
+    glDetachShader(ProgramID, FragmentShaderID);
 
-//     glDeleteShader(VertexShaderID);
-//     glDeleteShader(FragmentShaderID);
+    glDeleteShader(VertexShaderID);
+    glDeleteShader(FragmentShaderID);
 
-//     unsigned char* data;
-//     GLuint width, height;
-//     loadBMP("texture.bmp", &data, &width, &height);
-//     GLuint textureID;
-//     glGenTextures(1, &textureID);
-//     glBindTexture(GL_TEXTURE_2D, textureID);
-// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-//     glGenerateMipmap(GL_TEXTURE_2D);
+    unsigned char* data;
+    GLuint width, height;
+    loadBMP("texture.bmp", &data, &width, &height);
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-//     glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-// 	// Get a handle for our "MVP" uniform
-// 	GLuint MatrixID = glGetUniformLocation(ProgramID, "MVP");
-// 	glm::mat4 MVP;
+	// Get a handle for our "MVP" uniform
+	GLuint MatrixID = glGetUniformLocation(ProgramID, "MVP");
+	glm::mat4 MVP;
 
-// 	Axes ax(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(4.0f, 4.0f, 4.0f));
-// 	Plane plane(5.0f);
+	Axes ax(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(4.0f, 4.0f, 4.0f));
+	Plane plane(5.0f);
 
-// 	do{
-// 		// Clear the screen
-// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	do{
+		// Clear the screen
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-// 		glMatrixMode(GL_PROJECTION);
-// 		glPushMatrix();
-// 		glm::mat4 Projection = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);
-// 		// Projection = glm::mat4(1.0f);
-// 		glLoadMatrixf(glm::value_ptr(Projection));
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glm::mat4 Projection = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);
+		// Projection = glm::mat4(1.0f);
+		glLoadMatrixf(glm::value_ptr(Projection));
 
-// 		glMatrixMode( GL_MODELVIEW );
-// 		glPushMatrix();
-// 		glm::vec3 eye = {5.0f, 2.0f, 5.0f};
-// 		// glm::vec3 eye = {-5.0f, 2.0f, -5.0f};
-// 		glm::vec3 up = {0.0f, 1.0f, 0.0f};
-// 		glm::vec3 center = {0.0f, 0.0f, 0.0f};
-// 		//glm::mat4 V;
+		glMatrixMode( GL_MODELVIEW );
+		glPushMatrix();
+		glm::vec3 eye = {5.0f, 2.0f, 5.0f};
+		// glm::vec3 eye = {-5.0f, 2.0f, -5.0f};
+		glm::vec3 up = {0.0f, 1.0f, 0.0f};
+		glm::vec3 center = {0.0f, 0.0f, 0.0f};
+		//glm::mat4 V;
 
-// 		glm::mat4 V = glm::lookAt(eye, center, up);
+		glm::mat4 V = glm::lookAt(eye, center, up);
 
-// 		glm::mat4 M = glm::mat4(1.0f);
+		glm::mat4 M = glm::mat4(1.0f);
 
-// 		glm::mat4 MV = V * M;
-// 		glLoadMatrixf(glm::value_ptr(V));
+		glm::mat4 MV = V * M;
+		glLoadMatrixf(glm::value_ptr(V));
 
-// 		MVP = Projection * V * M;
+		MVP = Projection * V * M;
 
-// 		glActiveTexture(GL_TEXTURE0);
-// 		glEnable(GL_TEXTURE_2D);
-//         glBindTexture(GL_TEXTURE_2D, textureID);
+		glActiveTexture(GL_TEXTURE0);
+		glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureID);
 
-// 		glUseProgram(ProgramID);
-// 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUseProgram(ProgramID);
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-// 		// 1st attribute : vertices
-// 		glEnableVertexAttribArray(0);
-// 		glVertexAttribPointer(
-// 			0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-// 			3,                  // size
-// 			GL_FLOAT,           // type
-// 			GL_FALSE,           // normalized?
-// 			0,                  // stride
-// 			g_vertex_buffer_data// data
-// 		);
+		// 1st attribute : vertices
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(
+			0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			g_vertex_buffer_data// data
+		);
 
-// 		// 2nd attribute : uv
-// 		glEnableVertexAttribArray(1);
-// 		glVertexAttribPointer(
-// 			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-// 			2,                                // size
-// 			GL_FLOAT,                         // type
-// 			GL_FALSE,                         // normalized?
-// 			0,                                // stride
-// 			g_uv_buffer_data                  // data
-// 		);
+		// 2nd attribute : uv
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(
+			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+			2,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			g_uv_buffer_data                  // data
+		);
 
-// 		glDrawArrays(GL_TRIANGLES, 0, 12*3); // 12*3 indices starting at 0 -> 12 triangles
+		glDrawArrays(GL_TRIANGLES, 0, 12*3); // 12*3 indices starting at 0 -> 12 triangles
 
-// 		glDisableVertexAttribArray(0);
-// 		glDisableVertexAttribArray(1);
-// 		glUseProgram(0);
-// 		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glUseProgram(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-// 		ax.draw();
-// 		plane.draw();
+		ax.draw();
+		plane.draw();
 
-// 		// Swap buffers
-// 		glfwSwapBuffers(window);
-// 		glfwPollEvents();
+		// Swap buffers
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 
-// 	} // Check if the ESC key was pressed or the window was closed
-// 	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-// 		   glfwWindowShouldClose(window) == 0 );
+	} // Check if the ESC key was pressed or the window was closed
+	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+		   glfwWindowShouldClose(window) == 0 );
 
-// 	// Cleanup shader
-// 	glDeleteProgram(ProgramID);
+	// Cleanup shader
+	glDeleteProgram(ProgramID);
 
-// 	// Close OpenGL window and terminate GLFW
-// 	glfwTerminate();
+	// Close OpenGL window and terminate GLFW
+	glfwTerminate();
 
-// 	return 0;
-// }
+	return 0;
+}

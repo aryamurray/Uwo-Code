@@ -10,6 +10,8 @@
 #include <sstream>
 #include <iostream>
 #include "LoadBitmap.hpp"
+#include "happly.h"
+
 
 typedef struct VertexData
 {
@@ -26,8 +28,7 @@ typedef struct TriData
 } TriData;
 
 // Definitions
-void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vector<TriData> &faces);
-
+void readPLYFile(const std::string& filename, std::vector<VertexData>& vertices, std::vector<TriData>& faces);
 // Camera variables
 glm::vec3 cameraPosition = glm::vec3(0.5f, 0.4f, 0.5f);
 glm::vec3 cameraLookDirection = glm::vec3(0.0f, 0.0f, -1.0f); // Normalized
@@ -41,7 +42,7 @@ private:
     // Bitmap and Ply variables
     std::vector<VertexData> vertices;
     std::vector<TriData> faces;
-    unsigned char *texturePixels; // ARGB pixel data
+    unsigned char* texturePixels; // ARGB pixel data
     unsigned int textureWidth;
     unsigned int textureHeight;
 
@@ -60,7 +61,9 @@ public:
         readPLYFile(plyFilename, vertices, faces);
 
         // Load Data from Bitmap
-        loadARGB_BMP(plyFilename.c_str(), &texturePixels, &textureWidth, &textureHeight);
+        const char* texturebmp = textureFilename.c_str();
+        printf("\n\n %s\n\n", texturebmp);
+        loadARGB_BMP(texturebmp, &texturePixels, &textureWidth, &textureHeight);
 
         // Initialize OpenGL objects
         glGenVertexArrays(1, &vaoId);
@@ -68,10 +71,53 @@ public:
         glGenBuffers(1, &texCoordBufferId);
         glGenBuffers(1, &indexBufferId);
         glGenTextures(1, &textureId);
+
+        // Create the shaders
+        GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+        GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+        std::string VertexShaderCode = "\
+    	#version 330 core\n\
+		// Input vertex data, different for all executions of this shader.\n\
+		layout(location = 0) in vec3 vertexPosition;\n\
+		layout(location = 1) in vec2 uv;\n\
+		// Output data ; will be interpolated for each fragment.\n\
+		out vec2 uv_out;\n\
+		// Values that stay constant for the whole mesh.\n\
+		uniform mat4 MVP;\n\
+		void main(){ \n\
+			// Output position of the vertex, in clip space : MVP * position\n\
+			gl_Position =  MVP * vec4(vertexPosition,1);\n\
+			// The color will be interpolated to produce the color of each fragment\n\
+			uv_out = uv;\n\
+		}\n";
+
+    // Read the Fragment Shader code from the file
+    std::string FragmentShaderCode = "\
+		#version 330 core\n\
+		in vec2 uv_out; \n\
+		uniform sampler2D tex;\n\
+		void main() {\n\
+			gl_FragColor = texture(tex, uv_out);\n\
+		}\n";
+    char const * VertexSourcePointer = VertexShaderCode.c_str();
+    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
+    glCompileShader(VertexShaderID);
+
+    // Compile Fragment Shader
+    char const * FragmentSourcePointer = FragmentShaderCode.c_str();
+    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
+    glCompileShader(FragmentShaderID);
+
+    shaderProgramId = glCreateProgram();
+
+    glAttachShader(shaderProgramId, VertexShaderID);
+    glAttachShader(shaderProgramId, FragmentShaderID);
+    glLinkProgram(shaderProgramId);
     }
 
-    void draw(glm::mat4 MVP)
+    void draw(glm::mat4 MVP) const
     {
+        
         // 1. Bind Shader Program
         glUseProgram(shaderProgramId);
 
@@ -103,73 +149,30 @@ public:
     int getTextureHeight() const { return textureHeight; }
 };
 
-void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vector<TriData> &faces)
-{
-    std::ifstream file(fname);
+void readPLYFile(const std::string& filename, std::vector<VertexData>& vertices, std::vector<TriData>& faces) {
+    happly::PLYData plyIn(filename);
 
-    if (!file.is_open())
-    {
-        std::cerr << "Error opening PLY file: " << fname << std::endl;
-        return;
-    }
+    // Get vertex data 
+    std::vector<std::array<double, 3>> positions = plyIn.getVertexPositions();
+    std::vector<std::vector<size_t>> faceIndices = plyIn.getFaceIndices<size_t>(); 
 
-    std::string line;
-
-    // Skip header lines
-    while (std::getline(file, line))
-    {
-        // Find first non-whitespace character
-        size_t start = line.find_first_not_of(" \t\n\v\f\r");
-
-        // Find last non-whitespace character
-        size_t end = line.find_last_not_of(" \t\n\v\f\r");
-
-        // Extract the trimmed substring (if line was not empty)
-        if (start != std::string::npos)
-        {
-            std::string trimmed_line = line.substr(start, end - start + 1);
-
-            if (trimmed_line == "end_header")
-            {
-                break;
-            }
-        }
-    }
-
-    // Read vertex data
-    while (std::getline(file, line))
-    {
-        std::istringstream iss(line);
+    // Populate vertices
+    for (const auto& pos : positions) {
         VertexData vertex;
-
-        // Mandatory properties
-        if (!(iss >> vertex.x >> vertex.y >> vertex.z))
-        {
-            std::cerr << "Error reading vertex coordinates" << std::endl;
-            return;
-        }
-
-        // Optional properties
-        iss >> vertex.nx >> vertex.ny >> vertex.nz >> vertex.r >> vertex.g >> vertex.b >> vertex.u >> vertex.v;
+        vertex.x = pos[0];
+        vertex.y = pos[1];
+        vertex.z = pos[2];
 
         vertices.push_back(vertex);
     }
 
-    // Read face data
-    while (std::getline(file, line))
-    {
-        std::istringstream iss(line);
-        TriData face;
-        int numVertices;
-
-        if (!(iss >> numVertices >> face.indices[0] >> face.indices[1] >> face.indices[2]))
-        {
-            std::cerr << "Error reading face data" << std::endl;
-            return;
-        }
-
-        // Assuming triangles only (for now)
-        faces.push_back(face);
+    // Populate faces 
+    for (const auto& face : faceIndices) {
+        TriData tri;
+        tri.indices[0] = face[0];
+        tri.indices[1] = face[1];
+        tri.indices[2] = face[2];
+        faces.push_back(tri);
     }
 }
 
@@ -205,13 +208,13 @@ void readPLYFile(std::string fname, std::vector<VertexData> &vertices, std::vect
 
 void pushTexturedMeshes(std::vector<TexturedMesh> &meshes)
 {
-    std::vector<std::string> plyFilenames = {"Bottles.ply", "Curtains.ply", "DoorBg.ply", "Floor.ply", "MetalObjects.ply", "Patio.ply", "Table.ply", "Walls.ply", "WindowBG.ply", "WoodObjects.ply"}; // Array of PLY filenames
-    std::vector<std::string> bmpFilenames = {"bottles.bmp", "curtians.bmp", "doorbg.bmp", "floor.bmp", "metalobjects.bmp", "patio.bmp", "table.bmp", "walls.bmp", "windowbg.bmp", "woodobjects.bmp"}; // Array of texture filenames
+    std::vector<std::string> plyFilenames = {"Bottles.ply", "Curtains.ply", "DoorBG.ply", "Floor.ply", "MetalObjects.ply", "Patio.ply", "Table.ply", "Walls.ply", "WindowBG.ply", "WoodObjects.ply"}; // Array of PLY filenames
+    std::vector<std::string> bmpFilenames = {"bottles.bmp", "curtains.bmp", "doorbg.bmp", "floor.bmp", "metalobjects.bmp", "patio.bmp", "table.bmp", "walls.bmp", "windowbg.bmp", "woodobjects.bmp"}; // Array of texture filenames
 
-    for (int i = 0; i < plyFilenames.size(); i++)
+    for (int i = 0; i < (int) plyFilenames.size(); i++)
     {
-        printf("[Init] Reading %s and %s ", "assets/LinksHouse/" + plyFilenames[i], "assets/LinksHouse/" + bmpFilenames[i]);
-        meshes.push_back(TexturedMesh("assets/LinksHouse/" + plyFilenames[i], "assets/LinksHouse/" + bmpFilenames[i]));
+        std::cout << "[Info] Reading " << plyFilenames[i] << " and " << bmpFilenames[i].c_str();
+        meshes.push_back(TexturedMesh( plyFilenames[i],bmpFilenames[i]));
     }
 }
 
@@ -235,10 +238,6 @@ int main(void)
         return -1;
     }
 
-    // Init the Meshes
-    pushTexturedMeshes(meshes);
-    printf("[Init] Finished Reading Textures");
-
     /* Make the window's context current and define view*/
     glfwMakeContextCurrent(window);
 
@@ -250,6 +249,20 @@ int main(void)
         return -1;
     }
 
+    // Init the Meshes
+    pushTexturedMeshes(meshes);
+    printf("[Init] Finished Reading Textures\n");
+
+    
+
+    // Projection Matrix Setup 
+    glm::mat4 projectionMatrix = glm::perspective(
+        glm::radians(45.0f),    // 45-degree vertical field of view
+        (float)640 / 640,  // Aspect ratio (assuming 'width' and 'height' of window)
+        0.1f,                   // Near clipping plane
+        100.0f                  // Far clipping plane
+    );
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -257,8 +270,19 @@ int main(void)
         glfwPollEvents();
 
         /* Render here */
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+        // Render each mesh
+        for (const auto& mesh : meshes) {
+            // Calculate Model-View-Projection (MVP) matrix
+            glm::mat4 modelMatrix = glm::mat4(1.0f); // Adjust for mesh's position/rotation
+            // glm::mat4 viewMatrix = ...;  // Update based on your camera 
+            glm::mat4 MVP = projectionMatrix * modelMatrix;  
+
+            // Draw the mesh
+            mesh.draw(MVP); 
+        }
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
