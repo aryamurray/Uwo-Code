@@ -116,12 +116,6 @@ public:
     glAttachShader(shaderProgramId, FragmentShaderID);
     glLinkProgram(shaderProgramId);
 
-    glDetachShader(shaderProgramId, VertexShaderID);
-    glDetachShader(shaderProgramId, FragmentShaderID);
-
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
-
     }
 
     void draw(glm::mat4 MVP) const
