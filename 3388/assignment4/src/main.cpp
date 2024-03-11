@@ -83,6 +83,18 @@ public:
             j+=2;
         }
 
+        j=0;
+        float strideFaces[faces.size()*3];
+        for (int i = 0; i < faces.size(); i++){
+            TriData vert = faces.at(i);
+
+            strideFaces[j + 0] = vert.indices[0];
+            strideFaces[j + 1] = vert.indices[1];
+            strideFaces[j + 1] = vert.indices[2];
+
+            j+=3;
+        }
+
 
         // Load Data from Bitmap
         const char* texturebmp = textureFilename.c_str();
@@ -108,7 +120,7 @@ public:
 
         glGenBuffers(1, &indexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces.data()),faces.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(strideFaces),strideFaces, GL_STATIC_DRAW);
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId); // Bind the texture obj to GL_TEXTURE_2D
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
@@ -177,6 +189,16 @@ public:
 
         // 4. Bind VAO
         glBindVertexArray(vaoId);
+
+        glBindBuffer(GL_ARRAY_BUFFER,vertexBufferId);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0,3,GL_FLOAT,false,0,(GLvoid*)0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1,2,GL_FLOAT,false,0,(GLvoid*)0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId); 
 
         // 5. Draw Elements
         glDrawElements(GL_TRIANGLES, faces.size() * 3, GL_UNSIGNED_INT, 0);

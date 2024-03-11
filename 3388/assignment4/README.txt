@@ -1,17 +1,15 @@
 BUILDING AND RUNNING
     This project assumes a linux based enviroment (native, WSL, VM) with the libraries as outlined in the assignment page
 
-    To build, just run "make" in the appropreate working directory with the source code and the Makefile
-    To run, execute "./main"
+    To build, just run "make" in the top level working directory with the source code and the Makefile
+    To run, execute "./assignment4" WITHIN the bin directory. It will not work otherwise. Regardless, it only renders a black screen.
+    Currently, nothing renders, but the entire pipeline is implimented. I am at a loss as to why it's not rendering.
 
 STRUCTURE
-    1. We start off by initiating our GLFW instance and creating out window, specifing some parameters (size, name, etc.)
-    2. Create the glfw context which does most of the heavy lifting with opengl
-    3. Create our main while loop where we update the viewport every frame
-    4. In this loop, we define our triangle and colour that gets rendered when we run the program.
-        4.5. We do this by defining the points and then calling glTriangles to draw between them.
-    5. Finally, we just have a cleanup function and return from main
+    1. We start off by initiating our GLFW and GLEW instance and creating out window, specifing some parameters (size, name, etc.)
+    2. We read in our face and vertex data from the bmp and ply files and hold them in instance variables. We also set the shaders in the constructor.
+    2.5 Set all the opengl related variables by generating a binding buffers.
+    3. Export the objects to the meshes array so that we can render it in the main loop
+    4. Render the objects in the main loop
 
-ADDITIONAL NOTES
-    I believe that there's an issue with XLaunch, VCSVR and some of the opengl calls. I defined dotted line, and rounded point
-    for example and saw no evidence of it in my code. It should work for your testing enviroment though.
+    Rest in contined in comments within the main source file.
