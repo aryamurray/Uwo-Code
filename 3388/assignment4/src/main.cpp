@@ -60,6 +60,30 @@ public:
         // Load geometry from PLY
         readPLYFile(plyFilename, vertices, faces);
 
+        int j = 0;
+        float strideverticies[vertices.size()*3];
+        for (int i = 0; i < vertices.size(); i++){
+            VertexData vert = vertices.at(i);
+
+            strideverticies[j + 0] = vert.x;
+            strideverticies[j + 1] = vert.y;
+            strideverticies[j + 2] = vert.z;
+
+            j+=3;
+        }
+
+        j = 0;
+        float strideUV[vertices.size()*2];
+        for (int i = 0; i < vertices.size(); i++){
+            VertexData vert = vertices.at(i);
+
+            strideUV[j + 0] = vert.u;
+            strideUV[j + 1] = vert.v;
+
+            j+=2;
+        }
+
+
         // Load Data from Bitmap
         const char* texturebmp = textureFilename.c_str();
         printf("\n\n %s\n\n", texturebmp);
@@ -68,11 +92,27 @@ public:
         // Initialize OpenGL objects
         glGenVertexArrays(1, &vaoId);
         glGenBuffers(1, &vertexBufferId);
+        glBindBuffer(GL_ARRAY_BUFFER,vertexBufferId);
+        glBufferData(GL_ARRAY_BUFFER,sizeof(strideverticies),strideverticies,GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0,3,GL_FLOAT,false,0,(GLvoid*)0);
+
         glGenBuffers(1, &texCoordBufferId);
+        glBindBuffer(GL_ARRAY_BUFFER, texCoordBufferId);
+        glBufferData(GL_ARRAY_BUFFER,sizeof(strideUV),strideUV,GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1,2,GL_FLOAT,false,0,(GLvoid*)0);
+
         glGenBuffers(1, &indexBufferId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces.data()),faces.data(), GL_STATIC_DRAW);
         glGenTextures(1, &textureId);
         glBindTexture(GL_TEXTURE_2D, textureId); // Bind the texture obj to GL_TEXTURE_2D
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
+
+
 
         // Create the shaders
         GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -159,14 +199,18 @@ void readPLYFile(const std::string& filename, std::vector<VertexData>& vertices,
     // Get vertex data 
     std::vector<std::array<double, 3>> positions = plyIn.getVertexPositions();
     std::vector<std::vector<size_t>> faceIndices = plyIn.getFaceIndices<size_t>(); 
-
+    auto u = plyIn.getElement("vertex").getProperty<float>("u");
+    auto v = plyIn.getElement("vertex").getProperty<float>("v");
     // Populate vertices
+    int i = 0;
     for (const auto& pos : positions) {
         VertexData vertex;
         vertex.x = pos[0];
         vertex.y = pos[1];
         vertex.z = pos[2];
-
+        vertex.u = u[i];
+        vertex.v = v[i];
+        i+=1;
         vertices.push_back(vertex);
     }
 
