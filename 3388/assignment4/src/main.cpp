@@ -91,6 +91,7 @@ public:
 
         // Initialize OpenGL objects
         glGenVertexArrays(1, &vaoId);
+        glBindVertexArray(vaoId);
         glGenBuffers(1, &vertexBufferId);
         glBindBuffer(GL_ARRAY_BUFFER,vertexBufferId);
         glBufferData(GL_ARRAY_BUFFER,sizeof(strideverticies),strideverticies,GL_STATIC_DRAW);
@@ -140,6 +141,7 @@ public:
 		uniform sampler2D tex;\n\
 		void main() {\n\
 			gl_FragColor = texture(tex, uv_out);\n\
+            gl_FragColor = vec4(1.0,0.0,0.0,1.0);\n\
 		}\n";
     char const * VertexSourcePointer = VertexShaderCode.c_str();
     glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
@@ -185,12 +187,18 @@ public:
         glUseProgram(0);
     }
 
-    // Accessors (you may want to add more)
-    const std::vector<VertexData> &getVertices() const { return vertices; }
-    const std::vector<TriData> &getFaces() const { return faces; }
-    const unsigned char *getTexturePixels() const { return texturePixels; }
-    int getTextureWidth() const { return textureWidth; }
-    int getTextureHeight() const { return textureHeight; }
+    void drawDebug() const
+    {
+        for(int i = 0; i < vertices.size(); i++){
+            VertexData v = vertices.at(i);
+
+            glColor3f(1.0, 0.0, 0.0);
+            glBegin(GL_POINTS); // might be GL_POINT
+                glVertex3f(v.x, v.y, v.z);
+            glEnd();
+        }
+    }
+
 };
 
 void readPLYFile(const std::string& filename, std::vector<VertexData>& vertices, std::vector<TriData>& faces) {
@@ -201,6 +209,9 @@ void readPLYFile(const std::string& filename, std::vector<VertexData>& vertices,
     std::vector<std::vector<size_t>> faceIndices = plyIn.getFaceIndices<size_t>(); 
     auto u = plyIn.getElement("vertex").getProperty<float>("u");
     auto v = plyIn.getElement("vertex").getProperty<float>("v");
+
+
+
     // Populate vertices
     int i = 0;
     for (const auto& pos : positions) {
@@ -318,15 +329,15 @@ int main(void)
         glfwPollEvents();
 
         /* Render here */
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+        glClearColor(0,0,0,0); 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
         // Render each mesh
         for (const auto& mesh : meshes) {
             // Calculate Model-View-Projection (MVP) matrix
             glm::mat4 modelMatrix = glm::mat4(1.0f); // Adjust for mesh's position/rotation
-            // glm::mat4 viewMatrix = ...;  // Update based on your camera 
-            glm::mat4 MVP = projectionMatrix * modelMatrix;  
+            glm::mat4 viewMatrix = glm::lookAt(cameraPosition, cameraPosition+cameraLookDirection,glm::vec3(0,1,0));  // Update based on your camera 
+            glm::mat4 MVP = modelMatrix* projectionMatrix * viewMatrix;  
 
             // Draw the mesh
             mesh.draw(MVP); 
