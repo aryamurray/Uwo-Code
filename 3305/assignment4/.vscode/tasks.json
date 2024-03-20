@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build assignment-4",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-g",  // Add debugging symbols
+                "assignment-4.c",
+                "-o", 
+                "assignment-4"  // Output executable name
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

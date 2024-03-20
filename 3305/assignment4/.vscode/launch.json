@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build and Debug assignment-4", 
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/assignment-4",  // Path to the executable
+            "preLaunchTask": "Build assignment-4",       // Reference the build task
+            "args": ["-r","3", "assignment-4-input.csv"],  // Add your command-line arguments here
+            "stopAtEntry": false, 
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "miDebuggerPath": "/usr/bin/gdb" // Path to your GDB (adjust if needed)
+        }
+    ]
+}
