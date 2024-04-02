@@ -1,2 +1,2 @@
 all: main.cpp
-	g++ main.cpp -lglfw -ldl -lm -lGL -lGLEW  -o main
+	g++ -g main.cpp -lglfw -ldl -lm -lGL -lGLEW  -o main
