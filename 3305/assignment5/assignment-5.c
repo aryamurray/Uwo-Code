@@ -100,7 +100,7 @@ void* thread_routine(void* arg) {
                     process_transaction(transactions->account_id-1,transactions->amount);
                 }
                 else{
-                    printf("    *** INSUFFICIENT FUNDS ***");
+                    printf("    *** INSUFFICIENT FUNDS ***\n");
                 }
                 
                 printf("    Account %i: $%i\n\n",transactions->account_id,account_balances[transactions->account_id-1]);
