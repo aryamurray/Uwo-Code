@@ -119,14 +119,14 @@ void* thread_routine(void* arg) {
 
 int main(int argc, char *argv[])
 {
-    // if (argc != 2)
-    // {
-    //     fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-    //     return 1;
-    // }
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
 
     // Initialize account balances
-    FILE *fp = fopen("bankinfo.txt", "r");
+    FILE *fp = fopen(argv[1], "r");
     if (fp == NULL)
     {
         fprintf(stderr, "Error opening file: %s\n", argv[1]);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Error allocating memory\n");
             exit(1); 
         }
-        arg->filepath = "bankinfo.txt"; // Assuming a single input file
+        arg->filepath = argv[1]; // Assuming a single input file
         arg->lineNum = i + 2;
         arg->threadNum = i;
         pthread_create(&threads[i], NULL, thread_routine, (void*)arg);
